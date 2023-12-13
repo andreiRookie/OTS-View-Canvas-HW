@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Custom View</string>
+    <string name="fps_counter_template">%1$sfps</string>
 </resources>
