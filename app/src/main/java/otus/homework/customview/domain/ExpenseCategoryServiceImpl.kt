@@ -31,11 +31,3 @@ class ExpenseCategoryServiceImpl : ExpenseCategoryService {
         return allExpensesAmount
     }
 }
-
-//fun <K, V> MutableMap<K, V>.putOrCreate(newKey: K, newValue: V, valueWrapper: () -> V) {
-//    if (!this.containsKey(newKey)) {
-//        this[newKey] = valueWrapper()
-//    } else {
-//        this[newKey] = newValue
-//    }
-//}

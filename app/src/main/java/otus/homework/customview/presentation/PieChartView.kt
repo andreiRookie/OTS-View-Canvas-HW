@@ -5,20 +5,30 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.os.Bundle
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.View
 import otus.homework.customview.R
 import otus.homework.customview.util.TAG
+import otus.homework.customview.util.stubPieChartModel
 
 class PieChartView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ): View(context, attrs) {
 
-    private val generator = ColorGeneratorImpl()
-
-    private lateinit var sectorPaintList: MutableList<Paint>
-    private lateinit var strokePaint: Paint
+    private val paintsFlags = Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG
+    private val sectorPaint: Paint = Paint().apply {
+        style = Paint.Style.FILL
+        flags = paintsFlags
+    }
+    private val strokePaint: Paint = Paint().apply {
+        color = Color.BLACK
+        style = Paint.Style.STROKE
+        strokeWidth = 2f
+        flags = paintsFlags
+    }
 
     private var chartRadius = RADIUS_DEFAULT.dp()
 
@@ -28,11 +38,10 @@ class PieChartView @JvmOverloads constructor(
 
     init {
         if (isInEditMode) {
-            initPaintBrushes()
+            pieChartModel = stubPieChartModel
         }
-        attrs?.let {initAttrs(it)}
 
-        initPaintBrushes()
+        attrs?.let { initAttrs(it) }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -86,9 +95,10 @@ class PieChartView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        println("${this.TAG} width $width height $height")
 
-        if (pieChartModel.categories.isEmpty()) return
+        if (pieChartModel.sectors.isEmpty()) return
+
+        println("${this.TAG} onDraw width $width height $height")
 
         rect.set(0f,
             0f,
@@ -96,57 +106,47 @@ class PieChartView @JvmOverloads constructor(
             height.toFloat())
 
         var startAngle = 0f
-        pieChartModel.categories.forEachIndexed { index, model ->
-            canvas.drawArc(rect, startAngle, model.sectorSweepAngle, true, sectorPaintList[index])
-            canvas.drawArc(rect, startAngle, model.sectorSweepAngle, true, strokePaint)
-            startAngle += model.sectorSweepAngle
+        pieChartModel.sectors.forEach { model ->
+
+            sectorPaint.color = model.color
+
+            canvas.drawArc(rect, startAngle, model.sweepAngle, true, sectorPaint)
+            canvas.drawArc(rect, startAngle, model.sweepAngle, true, strokePaint)
+            startAngle += model.sweepAngle
         }
+    }
+
+    override fun onSaveInstanceState(): Parcelable? {
+        val bundle = Bundle()
+        bundle.putParcelable(CHART_STATE, pieChartModel)
+        bundle.putParcelable(SUPER_STATE, super.onSaveInstanceState())
+        return bundle
+
+//        return ChartState(super.onSaveInstanceState(), pieChartModel)
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+
+        val restoredState = state as Bundle
+        restoredState.getParcelable(CHART_STATE, PieChartModel::class.java)?.let {
+            pieChartModel = it
+        }
+        super.onRestoreInstanceState(restoredState.getParcelable(SUPER_STATE, Parcelable::class.java))
+
+//        val chartState = state as ChartState
+//        super.onRestoreInstanceState(chartState.superState)
+//        pieChartModel = chartState.pieChartModel
     }
 
     fun setPieChartModel(model: PieChartModel) {
         pieChartModel = model
+
+        println("${this.TAG} setPieChartModel pieChartModel $pieChartModel")
+
         requestLayout()
         invalidate()
     }
 
-    fun setChartRadius(radius: Float) {
-        chartRadius = radius
-    }
-
-    private fun initPaintBrushes() {
-        sectorPaintList = mutableListOf()
-
-        val paintsFlags = Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG
-
-        defaultColors.forEach { value ->
-
-                sectorPaintList += Paint().apply {
-                    color = value
-                    style = Paint.Style.FILL
-                    flags = paintsFlags
-                }
-        }
-
-//        if (pieChartModel.categories.size > defaultColors.size) {
-//            val diff = pieChartModel.categories.size - defaultColors.size
-//            (0 until diff).forEach {
-//                sectorPaintList += Paint().apply {
-//                    color = generator.generateColor()
-//                    style = Paint.Style.FILL
-//                    flags = paintsFlags
-//                }
-//            }
-//        }
-
-        strokePaint = Paint().apply {
-            color = Color.BLACK
-            style = Paint.Style.STROKE
-            strokeWidth = 2f
-            flags = paintsFlags
-        }
-
-        println("${this.TAG} paintList $sectorPaintList")
-    }
 
     private fun initAttrs(attrs: AttributeSet) {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.PieChartView)
@@ -164,16 +164,7 @@ class PieChartView @JvmOverloads constructor(
     companion object {
         private const val RADIUS_DEFAULT = 64f
 
-        private val defaultColors = listOf(
-            Color.GREEN,
-            Color.RED,
-            Color.BLUE,
-            Color.DKGRAY,
-            Color.CYAN,
-            Color.YELLOW,
-            Color.MAGENTA,
-            Color.GRAY,
-            Color.WHITE
-        )
+        private const val CHART_STATE = "PieChartView.CHART_STATE"
+        private const val SUPER_STATE = "PieChartView.SUPER_STATE"
     }
 }
