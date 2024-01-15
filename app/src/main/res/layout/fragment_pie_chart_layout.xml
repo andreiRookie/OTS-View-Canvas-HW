@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        app:chartRadius="96dp"/>
+        app:chartRadius="128dp"/>
 
 <!--    <Button-->
 <!--        android:id="@+id/set_chart_button"-->

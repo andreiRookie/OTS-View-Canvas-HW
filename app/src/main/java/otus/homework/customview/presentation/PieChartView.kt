@@ -4,11 +4,15 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PointF
 import android.graphics.RectF
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
 import otus.homework.customview.R
 import otus.homework.customview.util.TAG
 import otus.homework.customview.util.stubPieChartModel
@@ -35,6 +39,13 @@ class PieChartView @JvmOverloads constructor(
     private var pieChartModel = PieChartModel(emptyList())
 
     private val rect = RectF()
+
+    private val gestureDetector = GestureDetector(context, object :
+        GestureDetector.SimpleOnGestureListener() {
+        override fun onDown(e: MotionEvent): Boolean {
+            return super.onDown(e)
+        }
+    })
 
     init {
         if (isInEditMode) {
@@ -105,14 +116,12 @@ class PieChartView @JvmOverloads constructor(
             width.toFloat(),
             height.toFloat())
 
-        var startAngle = 0f
         pieChartModel.sectors.forEach { model ->
 
             sectorPaint.color = model.color
 
-            canvas.drawArc(rect, startAngle, model.sweepAngle, true, sectorPaint)
-            canvas.drawArc(rect, startAngle, model.sweepAngle, true, strokePaint)
-            startAngle += model.sweepAngle
+            canvas.drawArc(rect, model.startAngle, model.sweepAngle, true, sectorPaint)
+            canvas.drawArc(rect, model.startAngle, model.sweepAngle, true, strokePaint)
         }
     }
 

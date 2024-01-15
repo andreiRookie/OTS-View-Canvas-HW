@@ -35,6 +35,7 @@ class ExpenseRepositoryImpl(
 
         val result: MutableList<SectorModel> = mutableListOf()
 
+        var startAngle = 0f
         var sweepAngle = 0f
         var eachCategorySum = 0
 
@@ -45,12 +46,15 @@ class ExpenseRepositoryImpl(
 
             sweepAngle = round(eachCategorySum * DEGREES_360 / allCategoriesSum)
 
+
             result += SectorModel(
                 name = entry.key,
+                startAngle = startAngle,
                 sweepAngle = sweepAngle,
                 color = colorGenerator.generateColor()
                 )
 
+            startAngle += sweepAngle
             eachCategorySum = 0
         }
         return PieChartModel(sectors = result)

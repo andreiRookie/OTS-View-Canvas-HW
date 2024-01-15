@@ -8,6 +8,7 @@ import otus.homework.customview.domain.Expense
 @Parcelize
 data class SectorModel(
     val name: String,
+    val startAngle: Float,
     val sweepAngle: Float,
     val color: Int
 ): Parcelable
