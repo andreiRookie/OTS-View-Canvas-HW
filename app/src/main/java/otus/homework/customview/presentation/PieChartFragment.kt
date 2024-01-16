@@ -3,11 +3,9 @@ package otus.homework.customview.presentation
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import androidx.fragment.app.Fragment
 import otus.homework.customview.R
 import otus.homework.customview.di.AppComponent
-import otus.homework.customview.util.stubPieChartModel
 
 class PieChartFragment : Fragment(R.layout.fragment_pie_chart_layout) {
 
