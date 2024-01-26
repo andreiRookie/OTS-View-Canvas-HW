@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <otus.homework.customview.presentation.PieChartView
         android:id="@+id/pie_chart_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
         app:chartRadius="128dp"/>
-
-<!--    <Button-->
-<!--        android:id="@+id/set_chart_button"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="SET CHART"-->
-<!--        android:textSize="16sp"/>-->
 
 </FrameLayout>

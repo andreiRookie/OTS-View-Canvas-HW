@@ -1,6 +1,8 @@
 package otus.homework.customview.di
 
 import android.content.Context
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import otus.homework.customview.domain.ExpenseCategoryService
 import otus.homework.customview.domain.ExpenseCategoryServiceImpl
 import otus.homework.customview.domain.ExpenseRepository
@@ -11,14 +13,16 @@ import otus.homework.customview.presentation.PieChartViewModel
 
 class AppComponent private constructor(context: Context) {
 
-    val resProvider: ResourceProvider by lazy { ResourceProviderImpl(context) }
+    private val resProvider: ResourceProvider by lazy { ResourceProviderImpl(context) }
 
-    val categoryService: ExpenseCategoryService by lazy { ExpenseCategoryServiceImpl() }
+    private val categoryService: ExpenseCategoryService by lazy { ExpenseCategoryServiceImpl() }
 
-    val colorGenerator: ColorGenerator by lazy { ColorGeneratorImpl() }
+    private val colorGenerator: ColorGenerator by lazy { ColorGeneratorImpl() }
 
-    val repository: ExpenseRepository by lazy {
-        ExpenseRepositoryImpl(resProvider, categoryService, colorGenerator)
+    private val dispatcher: CoroutineDispatcher by lazy { Dispatchers.IO }
+
+    private val repository: ExpenseRepository by lazy {
+        ExpenseRepositoryImpl(resProvider, categoryService, colorGenerator, dispatcher)
     }
 
     val viewModel: PieChartViewModel by lazy {

@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PointF
 import android.graphics.RectF
 import android.os.Bundle
 import android.os.Parcelable
@@ -11,6 +12,7 @@ import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
 import otus.homework.customview.R
 import otus.homework.customview.util.TAG
 
@@ -113,17 +115,35 @@ class PieChartView @JvmOverloads constructor(
             width.toFloat(),
             height.toFloat())
 
-        var startAngle = 0f
-
         pieChartModel.sectors.forEach { model ->
 
             sectorPaint.color = model.color
 
-            canvas.drawArc(rect, startAngle, model.sweepAngle, true, sectorPaint)
-            canvas.drawArc(rect, startAngle, model.sweepAngle, true, strokePaint)
-
-            startAngle += model.sweepAngle
+            canvas.drawArc(rect, model.startAngle, model.sweepAngle, true, sectorPaint)
+            canvas.drawArc(rect, model.startAngle, model.sweepAngle, true, strokePaint)
         }
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                // обработка нажатия на экран
+
+                val point = PointF(event.x, event.y)
+                Toast.makeText(context, "$point", Toast.LENGTH_SHORT).show()
+
+                return true
+            }
+            MotionEvent.ACTION_MOVE -> {
+                // обработка перемещения по экрану
+                return true
+            }
+            MotionEvent.ACTION_UP -> {
+                // обработка отпускания от экрана
+                return true
+            }
+        }
+        return super.onTouchEvent(event)
     }
 
     override fun onSaveInstanceState(): Parcelable? {

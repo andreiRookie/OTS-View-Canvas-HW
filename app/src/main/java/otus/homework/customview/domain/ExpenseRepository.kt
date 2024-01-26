@@ -1,5 +1,7 @@
 package otus.homework.customview.domain
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import otus.homework.customview.R
@@ -14,45 +16,57 @@ import kotlin.math.round
 
 
 interface ExpenseRepository {
-    fun getPieChartModel(): PieChartModel
+    suspend fun getPieChartModel(): PieChartModel
 }
 
 class ExpenseRepositoryImpl(
     private val resProvider: ResourceProvider,
     private val categoryService: ExpenseCategoryService,
-    private val colorGenerator: ColorGenerator
+    private val colorGenerator: ColorGenerator,
+    private val dispatcher: CoroutineDispatcher
 ): ExpenseRepository {
 
-    override fun getPieChartModel(): PieChartModel {
+    override suspend fun getPieChartModel(): PieChartModel {
 
-        val expensesList = getExpenseList()
+        val resultSectorList = mutableListOf<SectorModel>()
 
-        val categoriesMap = categoryService.groupByCategoryIntoMap(expensesList)
-        val allCategoriesSum = categoryService.getAllExpensesAmount(expensesList)
+        withContext(dispatcher) {
 
-        val sectorList: MutableList<SectorModel> = mutableListOf()
+            val expensesList = getExpenseList()
 
-        var sweepAngle = 0f
-        var eachCategorySum = 0
+            val categoriesMap = categoryService.groupByCategoryIntoMap(expensesList)
+            val allCategoriesSum = categoryService.getAllExpensesAmount(expensesList)
 
-        categoriesMap.forEach { entry ->
-            entry.value.forEach { expense ->
-                eachCategorySum += expense.amount
+            val sectorList: MutableList<SectorModel> = mutableListOf()
+            var sweepAngle = 0f
+            var eachCategorySum = 0
+
+            categoriesMap.forEach { entry ->
+                entry.value.forEach { expense ->
+                    eachCategorySum += expense.amount
+                }
+                sweepAngle = round(eachCategorySum * DEGREES_360 / allCategoriesSum)
+
+                sectorList += SectorModel(
+                    categoryName = entry.key,
+                    sweepAngle = sweepAngle,
+                    color = colorGenerator.generateColor(),
+                    totalValue = eachCategorySum,
+                    expenseList = entry.value
+                )
+                eachCategorySum = 0
             }
 
-            sweepAngle = round(eachCategorySum * DEGREES_360 / allCategoriesSum)
+            val sortedSectorList = sectorList.sortedByDescending { it.sweepAngle }
 
-            sectorList += SectorModel(
-                categoryName = entry.key,
-                sweepAngle = sweepAngle,
-                color = colorGenerator.generateColor(),
-                totalValue = eachCategorySum,
-                expenseList = entry.value
-                )
+            var startAngle = 0f
 
-            eachCategorySum = 0
+            sortedSectorList.forEach { model ->
+                resultSectorList += model.copy(startAngle = startAngle)
+                startAngle += model.sweepAngle
+            }
         }
-        return PieChartModel(sectors = sectorList.sortedByDescending { it.sweepAngle })
+        return PieChartModel(sectors = resultSectorList)
     }
 
     private fun getExpenseList(): List<Expense> {

@@ -21,11 +21,6 @@ class PieChartFragment : Fragment(R.layout.fragment_pie_chart_layout) {
 
         val pieChartView = view.findViewById<PieChartView>(R.id.pie_chart_view)
 
-//        val setChartButton = view.findViewById<Button>(R.id.set_chart_button)
-//        setChartButton.setOnClickListener {
-//            pieChartView.setPieChartModel(stubPieChartModel)
-//        }
-
         viewModel.state.observe(viewLifecycleOwner) {
             pieChartView.setPieChartModel(it)
         }

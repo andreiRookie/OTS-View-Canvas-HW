@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import otus.homework.customview.domain.ExpenseRepository
 import otus.homework.customview.util.TAG
 
@@ -19,7 +21,9 @@ class PieChartViewModel(
     }
 
     private fun getChartData() {
-        _state.postValue(repository.getPieChartModel())
+        viewModelScope.launch {
+            _state.postValue(repository.getPieChartModel())
+        }
     }
 
     companion object {
@@ -39,5 +43,4 @@ class PieChartViewModel(
             }
         }
     }
-
 }
