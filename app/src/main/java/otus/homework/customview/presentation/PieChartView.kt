@@ -9,48 +9,39 @@ import android.graphics.RectF
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
-import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Toast
 import otus.homework.customview.R
 import otus.homework.customview.util.TAG
+import kotlin.math.atan2
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class PieChartView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
-): View(context, attrs) {
+) : View(context, attrs) {
 
-    private val paintsFlags = Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG
     private val sectorPaint: Paint = Paint().apply {
         style = Paint.Style.FILL
-        flags = paintsFlags
+        flags = Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG
     }
     private val strokePaint: Paint = Paint().apply {
         color = Color.BLACK
         style = Paint.Style.STROKE
         strokeWidth = 2f
-        flags = paintsFlags
+        flags = Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG
     }
 
     private var chartRadius = RADIUS_DEFAULT.dp()
 
     private var pieChartModel = PieChartModel(emptyList())
 
+    private var onSectorClickListener: OnSectorClickListener? = null
+
     private val rect = RectF()
 
-    private val gestureDetector = GestureDetector(context, object :
-        GestureDetector.SimpleOnGestureListener() {
-        override fun onDown(e: MotionEvent): Boolean {
-            return super.onDown(e)
-        }
-    })
-
     init {
-//        if (isInEditMode) {
-//            pieChartModel = stubPieChartModel
-//        }
-
         attrs?.let { initAttrs(it) }
     }
 
@@ -63,39 +54,32 @@ class PieChartView @JvmOverloads constructor(
 
         val wMeasured = when (wModeFromSpec) {
             MeasureSpec.EXACTLY -> {
-                println("${this.TAG} EXACTLY $widthFromSpec $heightFromSpec")
                 widthFromSpec
             }
 
             MeasureSpec.AT_MOST -> {
-                println("${this.TAG} AT_MOST $widthFromSpec $heightFromSpec")
                 minOf((chartRadius * 2).toInt(), widthFromSpec)
             }
 
             else -> {
-                println("${this.TAG} UNSPECIFIED $widthFromSpec $heightFromSpec")
                 (chartRadius * 2).toInt()
             }
         } + paddingLeft + paddingRight
 
         val hMeasured = when (hModeFromSpec) {
             MeasureSpec.EXACTLY -> {
-               println("${this.TAG} EXACTLY $widthFromSpec $heightFromSpec")
                 heightFromSpec
             }
 
             MeasureSpec.AT_MOST -> {
-                println("${this.TAG} AT_MOST $widthFromSpec $heightFromSpec")
-                minOf((chartRadius * 2).toInt(),  heightFromSpec)
+                minOf((chartRadius * 2).toInt(), heightFromSpec)
             }
 
             else -> {
-                println("${this.TAG} UNSPECIFIED $widthFromSpec $heightFromSpec")
                 (chartRadius * 2).toInt()
             }
         } + paddingTop + paddingBottom
 
-        println("${this.TAG} MEASURED DIMENSIONS $wMeasured $hMeasured")
         if (wMeasured > hMeasured) {
             setMeasuredDimension(hMeasured, hMeasured)
         } else {
@@ -106,14 +90,16 @@ class PieChartView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
+        println("${this.TAG} MEASURED DIMENSIONS: $width, $height")
+
         if (pieChartModel.sectors.isEmpty()) return
 
-        println("${this.TAG} onDraw width $width height $height")
-
-        rect.set(0f,
+        rect.set(
+            0f,
             0f,
             width.toFloat(),
-            height.toFloat())
+            height.toFloat()
+        )
 
         pieChartModel.sectors.forEach { model ->
 
@@ -129,11 +115,43 @@ class PieChartView @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 // обработка нажатия на экран
 
-                val point = PointF(event.x, event.y)
-                Toast.makeText(context, "$point", Toast.LENGTH_SHORT).show()
+                val pieChartCenterPoint = PointF((width / 2).toFloat(), (height / 2).toFloat())
 
+                val vectorCoordinatesPoint =
+                    PointF(event.x - pieChartCenterPoint.x, event.y - pieChartCenterPoint.y)
+
+                val vectorLength =
+                    sqrt(vectorCoordinatesPoint.x.pow(2) + vectorCoordinatesPoint.y.pow(2))
+
+                val currentRadius = width / 2
+
+                if (vectorLength > currentRadius) return false
+
+                val thetaAngleInRadiance = atan2(vectorCoordinatesPoint.y, vectorCoordinatesPoint.x)
+                val thetaAngleInDegrees = Math.toDegrees(thetaAngleInRadiance.toDouble())
+
+                val thetaAngleAsSectorAngle = if (thetaAngleInDegrees < 0) {
+                    DEGREES_360 + thetaAngleInDegrees
+                } else {
+                    thetaAngleInDegrees
+                }
+
+                pieChartModel.sectors.forEach { sectorModel ->
+                    if (thetaAngleAsSectorAngle > sectorModel.startAngle &&
+                        thetaAngleAsSectorAngle <= sectorModel.startAngle + sectorModel.sweepAngle
+                    ) {
+                        onSectorClickListener?.onSectorClick(
+                            CategoryData(
+                                sectorModel.categoryName,
+                                sectorModel.totalValue,
+                                sectorModel.expenseList
+                            )
+                        )
+                    }
+                }
                 return true
             }
+
             MotionEvent.ACTION_MOVE -> {
                 // обработка перемещения по экрану
                 return true
@@ -161,7 +179,12 @@ class PieChartView @JvmOverloads constructor(
         restoredState.getParcelable(CHART_STATE, PieChartModel::class.java)?.let {
             pieChartModel = it
         }
-        super.onRestoreInstanceState(restoredState.getParcelable(SUPER_STATE, Parcelable::class.java))
+        super.onRestoreInstanceState(
+            restoredState.getParcelable(
+                SUPER_STATE,
+                Parcelable::class.java
+            )
+        )
 
 //        val chartState = state as ChartState
 //        super.onRestoreInstanceState(chartState.superState)
@@ -171,17 +194,19 @@ class PieChartView @JvmOverloads constructor(
     fun setPieChartModel(model: PieChartModel) {
         pieChartModel = model
 
-        println("${this.TAG} setPieChartModel pieChartModel $pieChartModel")
-
         requestLayout()
         invalidate()
     }
 
+    fun setSectorClickListener(listener: OnSectorClickListener) {
+        onSectorClickListener = listener
+    }
 
     private fun initAttrs(attrs: AttributeSet) {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.PieChartView)
         try {
-            chartRadius = typedArray.getDimension(R.styleable.PieChartView_chartRadius, RADIUS_DEFAULT.dp())
+            chartRadius =
+                typedArray.getDimension(R.styleable.PieChartView_chartRadius, RADIUS_DEFAULT.dp())
         } finally {
             typedArray.recycle()
         }
@@ -193,6 +218,8 @@ class PieChartView @JvmOverloads constructor(
 
     companion object {
         private const val RADIUS_DEFAULT = 64f
+
+        private const val DEGREES_360 = 360F
 
         private const val CHART_STATE = "PieChartView.CHART_STATE"
         private const val SUPER_STATE = "PieChartView.SUPER_STATE"

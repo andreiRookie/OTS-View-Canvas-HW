@@ -19,6 +19,12 @@ data class PieChartModel(
     val sectors: List<SectorModel>
 ): Parcelable
 
+data class CategoryData(
+    val categoryName: String,
+    val totalValue: Int,
+    val expenseList: List<Expense>
+)
+
 
 //@Parcelize
 //data class ChartState(

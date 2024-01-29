@@ -19,10 +19,17 @@ class AppComponent private constructor(context: Context) {
 
     private val colorGenerator: ColorGenerator by lazy { ColorGeneratorImpl() }
 
-    private val dispatcher: CoroutineDispatcher by lazy { Dispatchers.IO }
+    private val dispatcherIo: CoroutineDispatcher by lazy { Dispatchers.IO }
+
+    private val dispatcherDefault: CoroutineDispatcher by lazy { Dispatchers.Default }
 
     private val repository: ExpenseRepository by lazy {
-        ExpenseRepositoryImpl(resProvider, categoryService, colorGenerator, dispatcher)
+        ExpenseRepositoryImpl(
+            resProvider,
+            categoryService,
+            colorGenerator,
+            dispatcherIo,
+            dispatcherDefault)
     }
 
     val viewModel: PieChartViewModel by lazy {

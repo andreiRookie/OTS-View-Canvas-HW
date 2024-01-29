@@ -9,7 +9,6 @@ import otus.homework.customview.di.ResourceProvider
 import otus.homework.customview.presentation.ColorGenerator
 import otus.homework.customview.presentation.PieChartModel
 import otus.homework.customview.presentation.SectorModel
-import otus.homework.customview.util.TAG
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import kotlin.math.round
@@ -23,16 +22,22 @@ class ExpenseRepositoryImpl(
     private val resProvider: ResourceProvider,
     private val categoryService: ExpenseCategoryService,
     private val colorGenerator: ColorGenerator,
-    private val dispatcher: CoroutineDispatcher
+    private val dispatcherIo: CoroutineDispatcher,
+    private val dispatcherDefault: CoroutineDispatcher
 ): ExpenseRepository {
 
     override suspend fun getPieChartModel(): PieChartModel {
 
+        val expensesList = getExpenseList()
+        val sectorList = getSortedSectorList(expensesList)
+
+        return PieChartModel(sectors = sectorList)
+    }
+
+    private suspend fun getSortedSectorList(expensesList: List<Expense>): List<SectorModel> {
         val resultSectorList = mutableListOf<SectorModel>()
 
-        withContext(dispatcher) {
-
-            val expensesList = getExpenseList()
+        withContext(dispatcherDefault) {
 
             val categoriesMap = categoryService.groupByCategoryIntoMap(expensesList)
             val allCategoriesSum = categoryService.getAllExpensesAmount(expensesList)
@@ -66,18 +71,20 @@ class ExpenseRepositoryImpl(
                 startAngle += model.sweepAngle
             }
         }
-        return PieChartModel(sectors = resultSectorList)
+        return resultSectorList
     }
 
-    private fun getExpenseList(): List<Expense> {
-        val payload = resProvider.getRawResource(R.raw.payload_10_categories)
+    private suspend fun getExpenseList(): List<Expense> {
 
         var list: List<Expense>
 
-        BufferedReader(InputStreamReader(payload)).use { reader ->
-            list = Json.decodeFromString<List<Expense>>(reader.readText())
+        withContext(dispatcherIo) {
+            val payload = resProvider.getRawResource(R.raw.payload_10_categories)
+
+            BufferedReader(InputStreamReader(payload)).use { reader ->
+                list = Json.decodeFromString<List<Expense>>(reader.readText())
+            }
         }
-        println("${this.TAG} ExpenseList $list")
         return list
     }
 
