@@ -7,8 +7,8 @@ import otus.homework.customview.domain.ExpenseCategoryService
 import otus.homework.customview.domain.ExpenseCategoryServiceImpl
 import otus.homework.customview.domain.ExpenseRepository
 import otus.homework.customview.domain.ExpenseRepositoryImpl
-import otus.homework.customview.presentation.ColorGenerator
-import otus.homework.customview.presentation.ColorGeneratorImpl
+import otus.homework.customview.util.ColorGenerator
+import otus.homework.customview.util.ColorGeneratorImpl
 import otus.homework.customview.presentation.PieChartViewModel
 
 class AppComponent private constructor(context: Context) {

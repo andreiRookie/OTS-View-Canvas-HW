@@ -6,7 +6,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import otus.homework.customview.R
 import otus.homework.customview.di.ResourceProvider
-import otus.homework.customview.presentation.ColorGenerator
+import otus.homework.customview.util.ColorGenerator
 import otus.homework.customview.presentation.PieChartModel
 import otus.homework.customview.presentation.SectorModel
 import java.io.BufferedReader

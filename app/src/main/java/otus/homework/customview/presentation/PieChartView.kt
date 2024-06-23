@@ -113,7 +113,6 @@ class PieChartView @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                // обработка нажатия на экран
 
                 val pieChartCenterPoint = PointF((width / 2).toFloat(), (height / 2).toFloat())
 
@@ -153,11 +152,9 @@ class PieChartView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_MOVE -> {
-                // обработка перемещения по экрану
                 return true
             }
             MotionEvent.ACTION_UP -> {
-                // обработка отпускания от экрана
                 return true
             }
         }
