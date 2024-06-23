@@ -1,34 +1,26 @@
-package otus.homework.customview.domain
+package otus.homework.customview.presentation
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import otus.homework.customview.R
-import otus.homework.customview.di.ResourceProvider
+import otus.homework.customview.domain.Expense
+import otus.homework.customview.domain.ExpenseCategoryService
+import otus.homework.customview.domain.ExpenseRepository
 import otus.homework.customview.util.ColorGenerator
-import otus.homework.customview.presentation.PieChartModel
-import otus.homework.customview.presentation.SectorModel
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import kotlin.math.round
 
-
-interface ExpenseRepository {
+interface PieChartRepository {
     suspend fun getPieChartModel(): PieChartModel
 }
 
-class ExpenseRepositoryImpl(
-    private val resProvider: ResourceProvider,
+class PieChartRepositoryImpl(
+    private val expenseRepository: ExpenseRepository,
     private val categoryService: ExpenseCategoryService,
     private val colorGenerator: ColorGenerator,
-    private val dispatcherIo: CoroutineDispatcher,
     private val dispatcherDefault: CoroutineDispatcher
-): ExpenseRepository {
+) : PieChartRepository {
 
     override suspend fun getPieChartModel(): PieChartModel {
-
-        val expensesList = getExpenseList()
+        val expensesList = expenseRepository.getExpenses()
         val sectorList = getSortedSectorList(expensesList)
 
         return PieChartModel(sectors = sectorList)
@@ -50,7 +42,8 @@ class ExpenseRepositoryImpl(
                 entry.value.forEach { expense ->
                     eachCategorySum += expense.amount
                 }
-                sweepAngle = round(eachCategorySum * DEGREES_360 / allCategoriesSum)
+                sweepAngle =
+                    round(eachCategorySum * DEGREES_360 / allCategoriesSum)
 
                 sectorList += SectorModel(
                     categoryName = entry.key,
@@ -72,20 +65,6 @@ class ExpenseRepositoryImpl(
             }
         }
         return resultSectorList
-    }
-
-    private suspend fun getExpenseList(): List<Expense> {
-
-        var list: List<Expense>
-
-        withContext(dispatcherIo) {
-            val payload = resProvider.getRawResource(R.raw.payload_10_categories)
-
-            BufferedReader(InputStreamReader(payload)).use { reader ->
-                list = Json.decodeFromString<List<Expense>>(reader.readText())
-            }
-        }
-        return list
     }
 
     companion object {

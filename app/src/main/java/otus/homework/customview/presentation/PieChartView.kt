@@ -90,8 +90,6 @@ class PieChartView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        println("${this.TAG} MEASURED DIMENSIONS: $width, $height")
-
         if (pieChartModel.sectors.isEmpty()) return
 
         rect.set(

@@ -6,11 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import otus.homework.customview.domain.ExpenseRepository
 import otus.homework.customview.util.TAG
 
 class PieChartViewModel(
-    private val repository: ExpenseRepository
+    private val repository: PieChartRepository
 ) : ViewModel() {
 
     private val _state = MutableLiveData<PieChartModel>()
@@ -28,7 +27,7 @@ class PieChartViewModel(
 
     companion object {
 
-        fun Factory(repository: ExpenseRepository): ViewModelProvider.Factory {
+        fun Factory(repository: PieChartRepository): ViewModelProvider.Factory {
             return object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
                     return when (modelClass) {

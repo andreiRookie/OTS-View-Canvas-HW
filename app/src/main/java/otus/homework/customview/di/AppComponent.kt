@@ -7,9 +7,13 @@ import otus.homework.customview.domain.ExpenseCategoryService
 import otus.homework.customview.domain.ExpenseCategoryServiceImpl
 import otus.homework.customview.domain.ExpenseRepository
 import otus.homework.customview.domain.ExpenseRepositoryImpl
+import otus.homework.customview.domain.ExpensesCache
+import otus.homework.customview.domain.ExpensesCacheImplObject
+import otus.homework.customview.presentation.PieChartRepository
+import otus.homework.customview.presentation.PieChartRepositoryImpl
+import otus.homework.customview.presentation.PieChartViewModel
 import otus.homework.customview.util.ColorGenerator
 import otus.homework.customview.util.ColorGeneratorImpl
-import otus.homework.customview.presentation.PieChartViewModel
 
 class AppComponent private constructor(context: Context) {
 
@@ -23,17 +27,27 @@ class AppComponent private constructor(context: Context) {
 
     private val dispatcherDefault: CoroutineDispatcher by lazy { Dispatchers.Default }
 
-    private val repository: ExpenseRepository by lazy {
+    private val cache: ExpensesCache by lazy { ExpensesCacheImplObject }
+
+    private val expenseRepository: ExpenseRepository by lazy {
         ExpenseRepositoryImpl(
             resProvider,
+            dispatcherIo,
+            cache
+        )
+    }
+
+    private val pieChartRepository: PieChartRepository by lazy {
+        PieChartRepositoryImpl(
+            expenseRepository,
             categoryService,
             colorGenerator,
-            dispatcherIo,
-            dispatcherDefault)
+            dispatcherDefault
+        )
     }
 
     val viewModel: PieChartViewModel by lazy {
-        PieChartViewModel.Factory(repository).create(PieChartViewModel::class.java)
+        PieChartViewModel.Factory(pieChartRepository).create(PieChartViewModel::class.java)
     }
 
     companion object {
