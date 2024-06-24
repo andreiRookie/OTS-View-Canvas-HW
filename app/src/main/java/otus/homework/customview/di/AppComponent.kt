@@ -8,7 +8,10 @@ import otus.homework.customview.domain.ExpenseCategoryServiceImpl
 import otus.homework.customview.domain.ExpenseRepository
 import otus.homework.customview.domain.ExpenseRepositoryImpl
 import otus.homework.customview.domain.ExpensesCache
-import otus.homework.customview.domain.ExpensesCacheImplObject
+import otus.homework.customview.domain.ExpensesCacheImpl
+import otus.homework.customview.presentation.CategoryDetailsRepository
+import otus.homework.customview.presentation.CategoryDetailsRepositoryImpl
+import otus.homework.customview.presentation.CategoryDetailsViewModel
 import otus.homework.customview.presentation.PieChartRepository
 import otus.homework.customview.presentation.PieChartRepositoryImpl
 import otus.homework.customview.presentation.PieChartViewModel
@@ -27,7 +30,7 @@ class AppComponent private constructor(context: Context) {
 
     private val dispatcherDefault: CoroutineDispatcher by lazy { Dispatchers.Default }
 
-    private val cache: ExpensesCache by lazy { ExpensesCacheImplObject }
+    private val cache: ExpensesCache by lazy { ExpensesCacheImpl() }
 
     private val expenseRepository: ExpenseRepository by lazy {
         ExpenseRepositoryImpl(
@@ -46,8 +49,20 @@ class AppComponent private constructor(context: Context) {
         )
     }
 
-    val viewModel: PieChartViewModel by lazy {
+    val pieChartViewModel: PieChartViewModel by lazy {
         PieChartViewModel.Factory(pieChartRepository).create(PieChartViewModel::class.java)
+    }
+
+    private val categoryDetailsRepository: CategoryDetailsRepository by lazy {
+        CategoryDetailsRepositoryImpl(
+            expenseRepository,
+            categoryService,
+            dispatcherDefault
+        )
+    }
+
+    val categoryDetailsViewModel: CategoryDetailsViewModel by lazy {
+        CategoryDetailsViewModel.Factory(categoryDetailsRepository).create(CategoryDetailsViewModel::class.java)
     }
 
     companion object {

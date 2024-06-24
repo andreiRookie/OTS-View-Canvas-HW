@@ -21,10 +21,17 @@ data class PieChartModel(
 
 data class CategoryData(
     val categoryName: String,
-    val totalValue: Int,
-    val expenseList: List<Expense>
+    val totalValue: Int
 )
+@Parcelize
+data class CategoryDetailsGraphModel(
+    val expensesByDateMap: Map<String, Int>
+): Parcelable
 
+data class CategoryDetailsState(
+    val categoryName: String,
+    val categoryDetailsGraphModel: CategoryDetailsGraphModel
+)
 
 //@Parcelize
 //data class ChartState(

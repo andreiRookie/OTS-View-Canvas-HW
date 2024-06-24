@@ -6,7 +6,7 @@ interface ExpensesCache {
     suspend fun saveExpenses(list: List<Expense>)
 }
 
-object ExpensesCacheImplObject : ExpensesCache {
+class ExpensesCacheImpl : ExpensesCache {
 
     private var cache: List<Expense> = mutableListOf()
 

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import otus.homework.customview.R
 import otus.homework.customview.di.AppComponent
@@ -14,7 +15,7 @@ class PieChartFragment : Fragment(R.layout.fragment_pie_chart_layout) {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        viewModel = AppComponent.INSTANCE.viewModel
+        viewModel = AppComponent.INSTANCE.pieChartViewModel
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -28,6 +29,13 @@ class PieChartFragment : Fragment(R.layout.fragment_pie_chart_layout) {
                     "${categoryData.categoryName} - ${categoryData.totalValue}rub.",
                     Toast.LENGTH_SHORT)
                     .show()
+
+                parentFragmentManager
+                    .setFragmentResult(
+                        CategoryDetailsFragment.ARG_RESULT_KEY,
+                        bundleOf(CategoryDetailsFragment.RESULT_VALUE to categoryData.categoryName
+                        )
+                    )
             }
         }
         pieChartView.setSectorClickListener(onSectorClickListener)
