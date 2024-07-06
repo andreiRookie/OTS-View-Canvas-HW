@@ -71,43 +71,46 @@ class CategoryDetailsView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         val startXGap = 8.dp()
         val startYGap = 8.dp()
-        val pointerArmOffset = 4.dp()
+        val axisPointerArmOffset = 4.dp()
+
+        val measuredWidthWithGap = measuredWidth - startXGap
+        val measuredHeightWithGap = measuredHeight - startYGap
 
         // start
         axisPath.reset()
         axisPath.moveTo(startXGap,0f)
 
         // Y axis pointer
-        axisPath.lineTo(pointerArmOffset, startYGap)
+        axisPath.lineTo(axisPointerArmOffset, startYGap)
         axisPath.moveTo(startXGap,0f)
-        axisPath.lineTo(startXGap + pointerArmOffset, startYGap)
+        axisPath.lineTo(startXGap + axisPointerArmOffset, startYGap)
 
         // axis
         axisPath.moveTo(startXGap,0f)
-        axisPath.lineTo(startXGap, height - startYGap)
-        axisPath.lineTo(width.toFloat(), height - startYGap)
+        axisPath.lineTo(startXGap, measuredHeightWithGap)
+        axisPath.lineTo(measuredWidth.toFloat(), measuredHeightWithGap)
 
         // X axis pointer
-        axisPath.lineTo(width - startXGap,height - startYGap - pointerArmOffset)
-        axisPath.moveTo(width.toFloat(),height - startYGap)
-        axisPath.lineTo(width - startXGap, height - startYGap + pointerArmOffset)
+        axisPath.lineTo(measuredWidthWithGap,measuredHeightWithGap - axisPointerArmOffset)
+        axisPath.moveTo(measuredWidth.toFloat(),measuredHeightWithGap)
+        axisPath.lineTo(measuredWidthWithGap, measuredHeightWithGap + axisPointerArmOffset)
 
         // X axis day steps
-        val stepXGap = 32.dp()
+        val firstStepXGap = 32.dp()
         val axisMarkLength = 16.dp()
         val axisMarkCount = data.expensesByDateMap.keys.size
-        val stepLength = (width - startXGap - stepXGap * 2) / axisMarkCount
+        val stepLength = (measuredWidthWithGap - firstStepXGap * 2) / axisMarkCount
 
         var stepsXDistance: Float = startXGap
         repeat(axisMarkCount) { step ->
             if (step == 0) {
-                stepsXDistance += stepXGap
-                axisPath.moveTo(stepsXDistance, height - startYGap - axisMarkLength / 2)
-                axisPath.lineTo(stepsXDistance, height - startYGap + axisMarkLength)
+                stepsXDistance += firstStepXGap
+                axisPath.moveTo(stepsXDistance, measuredHeightWithGap - axisMarkLength / 2)
+                axisPath.lineTo(stepsXDistance, measuredHeightWithGap + axisMarkLength)
             } else {
                 stepsXDistance += stepLength
-                axisPath.moveTo(stepsXDistance, height - startYGap - axisMarkLength / 2)
-                axisPath.lineTo(stepsXDistance, height - startYGap + axisMarkLength)
+                axisPath.moveTo(stepsXDistance, measuredHeightWithGap - axisMarkLength / 2)
+                axisPath.lineTo(stepsXDistance, measuredHeightWithGap + axisMarkLength)
             }
 
         }

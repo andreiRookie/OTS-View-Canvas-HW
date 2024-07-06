@@ -95,8 +95,8 @@ class PieChartView @JvmOverloads constructor(
         rect.set(
             0f,
             0f,
-            width.toFloat(),
-            height.toFloat()
+            measuredWidth.toFloat(),
+            measuredHeight.toFloat()
         )
 
         pieChartModel.sectors.forEach { model ->
@@ -112,7 +112,7 @@ class PieChartView @JvmOverloads constructor(
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
 
-                val pieChartCenterPoint = PointF((width / 2).toFloat(), (height / 2).toFloat())
+                val pieChartCenterPoint = PointF((measuredWidth / 2).toFloat(), (measuredHeight / 2).toFloat())
 
                 val vectorCoordinatesPoint =
                     PointF(event.x - pieChartCenterPoint.x, event.y - pieChartCenterPoint.y)
@@ -120,7 +120,7 @@ class PieChartView @JvmOverloads constructor(
                 val vectorLength =
                     sqrt(vectorCoordinatesPoint.x.pow(2) + vectorCoordinatesPoint.y.pow(2))
 
-                val currentRadius = width / 2
+                val currentRadius = measuredWidth / 2
 
                 if (vectorLength > currentRadius) return false
 
