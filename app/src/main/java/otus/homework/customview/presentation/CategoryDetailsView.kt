@@ -95,11 +95,11 @@ class CategoryDetailsView @JvmOverloads constructor(
         // X axis day steps
         val stepXGap = 32.dp()
         val axisMarkLength = 16.dp()
-        val axisPointCount = data.expensesByDateMap.keys.size
-        val stepLength = (width - startXGap - stepXGap * 2) / axisPointCount
+        val axisMarkCount = data.expensesByDateMap.keys.size
+        val stepLength = (width - startXGap - stepXGap * 2) / axisMarkCount
 
         var stepsXDistance: Float = startXGap
-        repeat(axisPointCount) { step ->
+        repeat(axisMarkCount) { step ->
             if (step == 0) {
                 stepsXDistance += stepXGap
                 axisPath.moveTo(stepsXDistance, height - startYGap - axisMarkLength / 2)
