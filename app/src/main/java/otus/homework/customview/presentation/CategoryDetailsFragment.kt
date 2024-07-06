@@ -13,7 +13,7 @@ class CategoryDetailsFragment : Fragment(R.layout.fragment_category_details_layo
     private lateinit var viewModel: CategoryDetailsViewModel
 
     private lateinit var categoryTitle: TextView
-//    private lateinit var categoryDetailsView: CategoryDetailsView
+    private lateinit var categoryDetailsView: CategoryDetailsView
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -23,7 +23,7 @@ class CategoryDetailsFragment : Fragment(R.layout.fragment_category_details_layo
         super.onViewCreated(view, savedInstanceState)
 
         categoryTitle = view.findViewById(R.id.category_title)
-//        categoryDetailsView = view.findViewById(R.id.graph)
+        categoryDetailsView = view.findViewById(R.id.graph)
 
         parentFragmentManager.setFragmentResultListener(ARG_RESULT_KEY, this) { _, bundle ->
             val result = bundle.getParcelable(RESULT_VALUE, String::class.java)
@@ -32,7 +32,7 @@ class CategoryDetailsFragment : Fragment(R.layout.fragment_category_details_layo
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             categoryTitle.text = state.categoryName
-//            categoryDetailsView.setData(state.categoryDetailsGraphModel)
+            categoryDetailsView.setData(state.categoryDetailsGraphModel)
         }
     }
 
