@@ -6,6 +6,8 @@ import android.graphics.Color
 import android.graphics.CornerPathEffect
 import android.graphics.Paint
 import android.graphics.Path
+import android.os.Bundle
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.View
 
@@ -175,6 +177,28 @@ class CategoryDetailsView @JvmOverloads constructor(
         canvas.drawPath(graphPath, graphPaint)
     }
 
+    override fun onSaveInstanceState(): Parcelable {
+        val bundle = Bundle()
+        bundle.putParcelable(GRAPH_DATA_STATE, data)
+        bundle.putInt(GRAPH_COLOR_STATE, graphPaint.color)
+        bundle.putParcelable(SUPER_STATE, super.onSaveInstanceState())
+        return bundle
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        val restoredState = state as Bundle
+
+        restoredState
+            .getParcelable(GRAPH_DATA_STATE, CategoryDetailsGraphModel::class.java)?.let {
+            data = it
+        }
+        restoredState.getInt(GRAPH_COLOR_STATE).also { color -> graphPaint.color = color }
+
+        super.onRestoreInstanceState(
+            restoredState.getParcelable(SUPER_STATE, Parcelable::class.java)
+        )
+    }
+
     fun setGraphColor(color: Int) {
         graphPaint.color = color
     }
@@ -187,5 +211,11 @@ class CategoryDetailsView @JvmOverloads constructor(
 
     private fun Int.dp(): Float {
         return this * context.resources.displayMetrics.density
+    }
+
+    companion object {
+        private const val GRAPH_DATA_STATE = "CategoryDetailsView.GRAPH_DATA_STATE"
+        private const val GRAPH_COLOR_STATE = "CategoryDetailsView.GRAPH_COLOR_STATE"
+        private const val SUPER_STATE = "CategoryDetailsView.SUPER_STATE"
     }
 }
