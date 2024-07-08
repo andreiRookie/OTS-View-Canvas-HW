@@ -22,8 +22,8 @@ class CategoryDetailsView @JvmOverloads constructor(
         strokeWidth = 8f
         flags = Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG
         strokeJoin = Paint.Join.ROUND
-        strokeCap = Paint.Cap.ROUND      // set the paint cap to round too
-        pathEffect = (CornerPathEffect(10f)) // set the path effect when they join
+        strokeCap = Paint.Cap.ROUND
+        pathEffect = (CornerPathEffect(10f))
     }
 
     private val axisPaint = Paint().apply {
@@ -85,6 +85,8 @@ class CategoryDetailsView @JvmOverloads constructor(
         val measuredHeightWithGap = measuredHeight - startYGap
 
         // start
+        graphPath.reset()
+
         axisPath.reset()
         axisPath.moveTo(startXGap, 0f)
 
@@ -103,67 +105,68 @@ class CategoryDetailsView @JvmOverloads constructor(
         axisPath.moveTo(measuredWidth.toFloat(), measuredHeightWithGap)
         axisPath.lineTo(measuredWidthWithGap, measuredHeightWithGap + axisPointerArmOffset)
 
-        // X axis day steps
-        val firstStepXGap = 32.dp()
-        val axisMarkLength = 16.dp()
-        val axisXDateMarkCount = data.expensesByDateMap.keys.size
-        val axiXStepWidth = (measuredWidthWithGap - firstStepXGap * 2) / axisXDateMarkCount
+        if (data.expensesByDateMap.isNotEmpty()) {
 
-        var stepsXDistance: Float = startXGap
-        repeat(axisXDateMarkCount) { step ->
-            if (step == 0) {
-                stepsXDistance += firstStepXGap
+            // X axis day steps
+            val firstStepXGap = 32.dp()
+            val axisMarkLength = 16.dp()
+            val axisXDateMarkCount = data.expensesByDateMap.keys.size
+            val axisXStepWidth = (measuredWidthWithGap - firstStepXGap * 2) / axisXDateMarkCount
 
-                // X axis with marks
-                axisPath.moveTo(stepsXDistance, measuredHeightWithGap - axisMarkLength / 2)
-                axisPath.lineTo(stepsXDistance, measuredHeightWithGap + axisMarkLength)
-            } else {
-                stepsXDistance += axiXStepWidth
-
-                // X axis with marks
-                axisPath.moveTo(stepsXDistance, measuredHeightWithGap - axisMarkLength / 2)
-                axisPath.lineTo(stepsXDistance, measuredHeightWithGap + axisMarkLength)
-            }
-
-        }
-
-        graphPath.reset()
-        val expenseValues = data.expensesByDateMap.values.toList()
-
-
-        if (expenseValues.isNotEmpty()) {
+            // Y axis stock steps
+            val expenseValues = data.expensesByDateMap.values.toList()
+            val maxExpenseValue = expenseValues.maxOf { it }
             val firstStepYGap = 32.dp()
             val stockHeightWithGap = measuredHeightWithGap - firstStepYGap
-
-
-            val maxExpenseValue = expenseValues.maxOf { it }
-
             val axisYStepHeight = stockHeightWithGap / maxExpenseValue
-
             var axisYStockFinalHeight: Float
             var axisYStockFinalHeightChecked: Float
+            val axisXStockMarksStart = 0f
 
-
-            var stepsXXDistance: Float = startXGap
+            var stepsXDistance: Float = startXGap
 
             repeat(axisXDateMarkCount) { step ->
                 if (step == 0) {
-                    stepsXXDistance += firstStepXGap
+                    stepsXDistance += firstStepXGap
 
-                    axisYStockFinalHeight = stockHeightWithGap - expenseValues[step] * axisYStepHeight
-                    axisYStockFinalHeightChecked = if (axisYStockFinalHeight < 1.dp()) axisYStockFinalHeight + firstStepYGap else axisYStockFinalHeight
+                    // X axis marks
+                    axisPath.moveTo(stepsXDistance, measuredHeightWithGap - axisMarkLength / 2)
+                    axisPath.lineTo(stepsXDistance, measuredHeightWithGap + axisMarkLength)
 
-                    graphPath.moveTo(stepsXXDistance, axisYStockFinalHeightChecked)
+                    // stock chart
+                    axisYStockFinalHeight =
+                        stockHeightWithGap - expenseValues[step] * axisYStepHeight
+                    axisYStockFinalHeightChecked =
+                        if (axisYStockFinalHeight < 1.dp()) axisYStockFinalHeight + firstStepYGap else axisYStockFinalHeight
 
+                    graphPath.moveTo(stepsXDistance, axisYStockFinalHeightChecked)
 
+                    // Y axis with marks
+                    axisPath.moveTo(axisXStockMarksStart, axisYStockFinalHeightChecked)
+                    axisPath.lineTo(
+                        axisXStockMarksStart + axisMarkLength,
+                        axisYStockFinalHeightChecked
+                    )
                 } else {
-                    stepsXXDistance += axiXStepWidth
+                    stepsXDistance += axisXStepWidth
 
-                    axisYStockFinalHeight = stockHeightWithGap - expenseValues[step] * axisYStepHeight
-                    axisYStockFinalHeightChecked = if (axisYStockFinalHeight < 1) axisYStockFinalHeight + firstStepYGap else axisYStockFinalHeight
+                    // X axis marks
+                    axisPath.moveTo(stepsXDistance, measuredHeightWithGap - axisMarkLength / 2)
+                    axisPath.lineTo(stepsXDistance, measuredHeightWithGap + axisMarkLength)
 
-                    graphPath.lineTo(stepsXXDistance, axisYStockFinalHeightChecked)
+                    // stock chart
+                    axisYStockFinalHeight =
+                        stockHeightWithGap - expenseValues[step] * axisYStepHeight
+                    axisYStockFinalHeightChecked =
+                        if (axisYStockFinalHeight < 1.dp()) axisYStockFinalHeight + firstStepYGap else axisYStockFinalHeight
+                    graphPath.lineTo(stepsXDistance, axisYStockFinalHeightChecked)
 
+                    // Y axis with marks
+                    axisPath.moveTo(axisXStockMarksStart, axisYStockFinalHeightChecked)
+                    axisPath.lineTo(
+                        axisXStockMarksStart + axisMarkLength,
+                        axisYStockFinalHeightChecked
+                    )
                 }
             }
         }
