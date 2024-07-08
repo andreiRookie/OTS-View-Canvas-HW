@@ -1,6 +1,7 @@
 package otus.homework.customview.presentation
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -26,18 +27,21 @@ class CategoryDetailsFragment : Fragment(R.layout.fragment_category_details_layo
         categoryDetailsView = view.findViewById(R.id.graph)
 
         parentFragmentManager.setFragmentResultListener(ARG_RESULT_KEY, this) { _, bundle ->
-            val result = bundle.getParcelable(RESULT_VALUE, String::class.java)
-            result?.let { viewModel.updateStateWithCategory(it) }
+            val categoryName = bundle.getString(CATEGORY_VALUE, "")
+            val color = bundle.getInt(COLOR_VALUE, Color.RED)
+            viewModel.updateStateWithCategory(categoryName, color)
         }
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             categoryTitle.text = state.categoryName
+            categoryDetailsView.setGraphColor(state.color)
             categoryDetailsView.setData(state.categoryDetailsGraphModel)
         }
     }
 
     companion object {
         const val ARG_RESULT_KEY = "result key"
-        const val RESULT_VALUE = "result"
+        const val CATEGORY_VALUE = "category result"
+        const val COLOR_VALUE = "color result"
     }
 }

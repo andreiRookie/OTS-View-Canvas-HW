@@ -21,6 +21,7 @@ data class PieChartModel(
 
 data class CategoryData(
     val categoryName: String,
+    val color: Int,
     val totalValue: Int
 )
 @Parcelize
@@ -30,6 +31,7 @@ data class CategoryDetailsGraphModel(
 
 data class CategoryDetailsState(
     val categoryName: String,
+    val color: Int,
     val categoryDetailsGraphModel: CategoryDetailsGraphModel
 )
 

@@ -16,10 +16,11 @@ class CategoryDetailsViewModel(
 
     val state: LiveData<CategoryDetailsState> get() = _state
 
-    fun updateStateWithCategory(category: String) {
+    fun updateStateWithCategory(category: String, color: Int) {
         viewModelScope.launch {
             _state.value = CategoryDetailsState(
                 category,
+                color,
                 repository.getCategoryDetailsGraphModel(category)
             )
         }

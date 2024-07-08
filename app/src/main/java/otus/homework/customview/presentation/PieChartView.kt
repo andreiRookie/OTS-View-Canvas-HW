@@ -140,6 +140,7 @@ class PieChartView @JvmOverloads constructor(
                         onSectorClickListener?.onSectorClick(
                             CategoryData(
                                 sectorModel.categoryName,
+                                sectorModel.color,
                                 sectorModel.totalValue
                             )
                         )

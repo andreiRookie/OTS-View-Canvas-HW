@@ -33,7 +33,9 @@ class PieChartFragment : Fragment(R.layout.fragment_pie_chart_layout) {
                 parentFragmentManager
                     .setFragmentResult(
                         CategoryDetailsFragment.ARG_RESULT_KEY,
-                        bundleOf(CategoryDetailsFragment.RESULT_VALUE to categoryData.categoryName
+                        bundleOf(
+                            CategoryDetailsFragment.CATEGORY_VALUE to categoryData.categoryName,
+                            CategoryDetailsFragment.COLOR_VALUE to categoryData.color
                         )
                     )
             }

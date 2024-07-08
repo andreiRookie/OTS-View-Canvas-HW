@@ -175,6 +175,9 @@ class CategoryDetailsView @JvmOverloads constructor(
         canvas.drawPath(graphPath, graphPaint)
     }
 
+    fun setGraphColor(color: Int) {
+        graphPaint.color = color
+    }
 
     fun setData(newData: CategoryDetailsGraphModel) {
         data = newData
