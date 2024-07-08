@@ -33,7 +33,9 @@ class CategoryDetailsRepositoryImpl(
                 var newSum = 0
                 val expensesByDatesMap: MutableMap<String, Int> = mutableMapOf()
 
-                categoriesMap[category]?.forEach { expense ->
+                val expensesSortedByDate = categoriesMap[category]?.sortedBy { it.time }
+
+                expensesSortedByDate?.forEach { expense ->
                     date = expense.time.formatDate()
 
                     if (expensesByDatesMap.containsKey(date)) {
