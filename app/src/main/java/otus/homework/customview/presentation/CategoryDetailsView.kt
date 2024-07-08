@@ -3,6 +3,7 @@ package otus.homework.customview.presentation
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.CornerPathEffect
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
@@ -18,8 +19,11 @@ class CategoryDetailsView @JvmOverloads constructor(
     private val graphPaint = Paint().apply {
         color = Color.RED
         style = Paint.Style.STROKE
-        strokeWidth = 16f
+        strokeWidth = 8f
         flags = Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG
+        strokeJoin = Paint.Join.ROUND
+        strokeCap = Paint.Cap.ROUND      // set the paint cap to round too
+        pathEffect = (CornerPathEffect(10f)) // set the path effect when they join
     }
 
     private val axisPaint = Paint().apply {
@@ -44,9 +48,11 @@ class CategoryDetailsView @JvmOverloads constructor(
             MeasureSpec.EXACTLY -> {
                 wFromSpec
             }
+
             MeasureSpec.AT_MOST -> {
                 minOf(wFromSpec, width)
             }
+
             else -> {
                 width
             }
@@ -57,9 +63,11 @@ class CategoryDetailsView @JvmOverloads constructor(
             MeasureSpec.EXACTLY -> {
                 hFromSpec
             }
+
             MeasureSpec.AT_MOST -> {
                 minOf(hFromSpec, height)
             }
+
             else -> {
                 height
             }
@@ -78,21 +86,21 @@ class CategoryDetailsView @JvmOverloads constructor(
 
         // start
         axisPath.reset()
-        axisPath.moveTo(startXGap,0f)
+        axisPath.moveTo(startXGap, 0f)
 
         // Y axis pointer
         axisPath.lineTo(axisPointerArmOffset, startYGap)
-        axisPath.moveTo(startXGap,0f)
+        axisPath.moveTo(startXGap, 0f)
         axisPath.lineTo(startXGap + axisPointerArmOffset, startYGap)
 
         // axis
-        axisPath.moveTo(startXGap,0f)
+        axisPath.moveTo(startXGap, 0f)
         axisPath.lineTo(startXGap, measuredHeightWithGap)
         axisPath.lineTo(measuredWidth.toFloat(), measuredHeightWithGap)
 
         // X axis pointer
-        axisPath.lineTo(measuredWidthWithGap,measuredHeightWithGap - axisPointerArmOffset)
-        axisPath.moveTo(measuredWidth.toFloat(),measuredHeightWithGap)
+        axisPath.lineTo(measuredWidthWithGap, measuredHeightWithGap - axisPointerArmOffset)
+        axisPath.moveTo(measuredWidth.toFloat(), measuredHeightWithGap)
         axisPath.lineTo(measuredWidthWithGap, measuredHeightWithGap + axisPointerArmOffset)
 
         // X axis day steps
@@ -115,10 +123,34 @@ class CategoryDetailsView @JvmOverloads constructor(
 
         }
 
+        graphPath.reset()
+        val expenseValues = data.expensesByDateMap.values.toList()
+        val firstStepYGap = 32.dp()
+        val stockHeightWithGap = measuredHeightWithGap - firstStepYGap
+
+        if (expenseValues.isNotEmpty()) {
+            val maxExpenseValue = expenseValues.maxOf { it }
+
+            val heightStep = stockHeightWithGap / maxExpenseValue
+
+            var stepsXXDistance: Float = startXGap
+            repeat(axisMarkCount) { step ->
+                if (step == 0) {
+                    stepsXXDistance += firstStepXGap
+                    graphPath.moveTo(stepsXXDistance, expenseValues[step] * heightStep)
+                } else {
+                    stepsXXDistance += stepLength
+                    graphPath.lineTo(stepsXXDistance, expenseValues[step] * heightStep)
+
+                }
+
+            }
+        }
+
         canvas.drawPath(axisPath, axisPaint)
+        canvas.drawPath(graphPath, graphPaint)
 
     }
-
 
 
     fun setData(newData: CategoryDetailsGraphModel) {
